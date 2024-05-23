@@ -6,4 +6,5 @@ This is a course requirement for CS 180 (Artificial Intelligence) Course of the 
 * MENDOZA, Janelle M.
 * MURILLO, Joana Marie V.
 
-hello
+## How to run the web app
+Work in progress...
