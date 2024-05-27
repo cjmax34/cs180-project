@@ -3,8 +3,19 @@ import streamlit as st
 # Import necessary libraries for the model here
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
+
+# For data preprocessing
+from sklearn.preprocessing import LabelEncoder
+
+# For generating the training and testing sets (80% training, 20% testing)
+from sklearn.model_selection import train_test_split
+
+# For evaluating the model's performance
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+
+# For the main model (Multilayer Perceptron)
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import MinMaxScaler  # Import the scaler to be used in scaling the features
 
 st.set_page_config(
     page_title="Stress Level Prediction",
