@@ -25,8 +25,66 @@ st.set_page_config(
 # Model function
 @st.cache_resource
 def mlpModel():
-    ...
+    # Load the dataset
+    dataset = pd.read_csv('Sleep_Data_Sampled.csv')
 
+    # Rename Normal Weight to Normal
+    dataset['BMI Category'] = dataset['BMI Category'].str.replace('Normal Weight', 'Normal')
+
+    # Split the blood pressure feature into systolic blood pressure and diastolic blood pressure
+    dataset[['Systolic Blood Pressure', 'Diastolic Blood Pressure']] = dataset['Blood Pressure'].str.split('/', n=1, expand=True)
+
+    # Convert the data type of the newly created columns to numeric
+    dataset[['Systolic Blood Pressure', 'Diastolic Blood Pressure']] = dataset[['Systolic Blood Pressure', 'Diastolic Blood Pressure']].apply(pd.to_numeric)
+
+    # Move the target column (stress level) to the last column
+    dataset['Stress Level'] = dataset.pop('Stress Level')
+
+    # Remove some features because they are unnecessary for analysis
+    features_to_remove = ['Person ID', 'Occupation', 'Blood Pressure']
+    dataset.drop(features_to_remove, axis=1, inplace=True)
+
+    # Use LabelEncoder to encode the categorical features
+    label_encoder = LabelEncoder()
+    categorical_features = dataset.select_dtypes(include=['object']).columns.tolist()
+    for cat in categorical_features:
+        dataset[cat] = label_encoder.fit_transform(dataset[cat])
+
+    # Initializing the features and target variables
+    X = dataset.drop('Stress Level', axis=1)
+    y = dataset['Stress Level']
+
+    # Generating the training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=22)
+    
+    # Instantiate the MinMaxScaler
+    scaler = MinMaxScaler(feature_range=(-1,1))   # tanh activation function
+
+    # Identify the numerical columns
+    numerical_cols = ['Age', 'Sleep Duration', 'Quality of Sleep', 'Physical Activity Level', 'Heart Rate', 'Daily Steps', 'Systolic Blood Pressure', 'Diastolic Blood Pressure']
+
+    # Create a copy of the testing and training sets
+    X_train_mlp = X_train.copy()  
+    X_test_mlp = X_test.copy()  
+
+    # Store in the copies the scaled training and testing sets (to be used for the MLP)
+    X_train_mlp[numerical_cols] = scaler.fit_transform(X_train[numerical_cols])
+    X_test_mlp[numerical_cols] = scaler.transform(X_test[numerical_cols])
+
+    mlp = MLPClassifier(hidden_layer_sizes=20, max_iter=5000, learning_rate_init=0.001, activation='tanh', solver='lbfgs', random_state=22) # Optimal parameters
+    mlp.fit(X_train_mlp, y_train)
+
+    mlp_predictions = mlp.predict(X_test_mlp)
+    print(mlp_predictions)  # For debugging purposes
+
+    utils = {
+        "model": mlp,
+        "scaler": scaler,
+        "label_encoder": label_encoder,
+    }
+
+    return utils    # Return the model and the encoders (to be used for the prediction functioon)
+        
 # Prediction function
 def predictStress(gender, age, sleep_dur, bmi, heart_rate, daily_steps, systolic_bp, diastolic_bp):
     ... # Work in progress
