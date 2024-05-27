@@ -30,7 +30,7 @@ st.header("Input Data")
 st.write("To predict your stress level, please input the following data:")
 gender_col, age_col, sleep_dur_col = st.columns(3)
 bmi_col, heart_rate_col, steps_col = st.columns(3)
-systolic_col, diastolic_col = st.columns(2)
+sleep_disorder_col, systolic_col, diastolic_col = st.columns(3)
 
 ## Gender, Age, Sleep duration
 with gender_col:
@@ -58,7 +58,11 @@ with steps_col:
     st.subheader('Daily Steps')
     daily_steps = st.number_input("Please enter the number of steps you take daily.", min_value=1000, max_value=10000)
 
-## Systolic and diastolic blood pressure
+## SLeep disorder, and systolic and diastolic blood pressure
+with sleep_disorder_col:
+    st.subheader('Sleep Disorder')
+    sleep_disorder = st.radio("What sleep disorder are you currently diagnosed with?", ["Healthy", "Sleep Apnea", "Sleep Insomnia"], index=None)
+
 with systolic_col:
     st.subheader('Systolic Blood Pressure')
     systolic_bp = st.number_input("Please enter your systolic blood pressure.", min_value=100, max_value=140, step=1)
