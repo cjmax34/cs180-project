@@ -28,11 +28,11 @@ st.divider()    # Add a divider
 
 st.header("Input Data")
 st.write("To predict your stress level, please input the following data:")
-gender_col, age_col, sleep_dur_col = st.columns(3)
-bmi_col, heart_rate_col, steps_col = st.columns(3)
-sleep_disorder_col, systolic_col, diastolic_col = st.columns(3)
+gender_col, age_col, bmi_col = st.columns(3)
+sleep_dur_col, sleep_disorder_col, steps_col = st.columns(3)
+heart_rate_col, systolic_col, diastolic_col = st.columns(3)
 
-## Gender, Age, Sleep duration
+## Gender, Age (years), Body Mass Index (BMI)
 with gender_col:
     st.subheader('Gender')
     gender = st.radio("Please select your gender.", ["Male", "Female"], index=None)
@@ -41,27 +41,27 @@ with age_col:
     st.subheader('Age')
     age = st.number_input("Please enter your age.", min_value=27, max_value=60, step=1)
 
-with sleep_dur_col:
-    st.subheader('Sleep Duration')
-    sleep_dur = st.slider("Use the slider to input your average sleep duration (in hours)", min_value=5.8, max_value=8.5, step=0.1)
-
-## Body Mass Index (BMI), Heart rate (beats/min), Steps (per day)
 with bmi_col:
     st.subheader('Body Mass Index (BMI)')
     bmi = st.radio("Please select your BMI category.", ["Normal", "Overweight", "Obese"], index=None)
 
-with heart_rate_col:
-    st.subheader('Heart Rate')
-    heart_rate = st.number_input("Please enter your heart rate (in beats per minute).", min_value=65, max_value=86, step=1)
+## Sleep duration (hours), Sleep disorder, Steps (per day)
+with sleep_dur_col:
+    st.subheader('Sleep Duration')
+    sleep_dur = st.slider("Use the slider to input your average sleep duration (in hours).", min_value=5.8, max_value=8.5, step=0.1)
+
+with sleep_disorder_col:
+    st.subheader('Sleep Disorder')
+    sleep_disorder = st.radio("What sleep disorder are you currently diagnosed with?", ["None", "Sleep Apnea", "Insomnia"], index=None)
 
 with steps_col:
     st.subheader('Daily Steps')
     daily_steps = st.number_input("Please enter the number of steps you take daily.", min_value=1000, max_value=10000)
 
-## SLeep disorder, and systolic and diastolic blood pressure
-with sleep_disorder_col:
-    st.subheader('Sleep Disorder')
-    sleep_disorder = st.radio("What sleep disorder are you currently diagnosed with?", ["Healthy", "Sleep Apnea", "Sleep Insomnia"], index=None)
+## Heart rate (bpm), and systolic and diastolic blood pressure
+with heart_rate_col:
+    st.subheader('Heart Rate')
+    heart_rate = st.number_input("Please enter your heart rate (in beats per minute).", min_value=65, max_value=86, step=1)
 
 with systolic_col:
     st.subheader('Systolic Blood Pressure')
