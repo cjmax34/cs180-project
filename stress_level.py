@@ -45,10 +45,10 @@ def mlpModel():
     dataset.drop(features_to_remove, axis=1, inplace=True)
 
     # Use LabelEncoder to encode the categorical features
-    label_encoder = LabelEncoder()
-    categorical_features = dataset.select_dtypes(include=['object']).columns.tolist()
-    for cat in categorical_features:
-        dataset[cat] = label_encoder.fit_transform(dataset[cat])
+    label_encoder_gender, label_encoder_bmi, label_encoder_sleep_disorder = LabelEncoder(), LabelEncoder(), LabelEncoder()
+    dataset['Gender'] = label_encoder_gender.fit_transform(dataset['Gender'])
+    dataset['BMI Category'] = label_encoder_bmi.fit_transform(dataset['BMI Category'])
+    dataset['Sleep Disorder'] = label_encoder_sleep_disorder.fit_transform(dataset['Sleep Disorder'])
 
     # Initializing the features and target variables
     X = dataset.drop('Stress Level', axis=1)
@@ -80,14 +80,40 @@ def mlpModel():
     utils = {
         "model": mlp,
         "scaler": scaler,
-        "label_encoder": label_encoder,
+        "label_encoder_gender": label_encoder_gender,
+        "label_encoder_bmi": label_encoder_bmi,
+        "label_encoder_sleep_disorder": label_encoder_sleep_disorder,
     }
 
     return utils    # Return the model and the encoders (to be used for the prediction functioon)
         
 # Prediction function
-def predictStress(gender, age, sleep_dur, bmi, heart_rate, daily_steps, systolic_bp, diastolic_bp):
-    ... # Work in progress
+def predictStress(gender, age, sleep_dur, sleep_qual, phys_act_level, bmi, heart_rate, daily_steps, sleep_disorder, systolic_bp, diastolic_bp):
+    # Convert "None" of sleep_disorder to "Healthy"
+    if sleep_disorder == "None":
+        sleep_disorder = "Healthy"
+    
+    utils = mlpModel() # Load the model and the encoders
+    mlp = utils['model']
+    scaler = utils['scaler']
+    label_encoder_gender = utils['label_encoder_gender']
+    label_encoder_bmi = utils['label_encoder_bmi']
+    label_encoder_sleep_disorder = utils['label_encoder_sleep_disorder']
+
+    # Perform label encoding on Gender, BMI, and Sleep Disorder
+    gender_encoded = label_encoder_gender.transform(np.array([gender]))
+    bmi_encoded = label_encoder_bmi.transform(np.array([bmi]))
+    sleep_disorder_encoded = label_encoder_sleep_disorder.transform(np.array([sleep_disorder]))
+
+    # Perform normalization on the numerical features
+    numerical_features = np.array([age, sleep_dur, sleep_qual, phys_act_level, heart_rate, daily_steps, systolic_bp, diastolic_bp]).reshape(1, -1)
+    numerical_features = scaler.transform(numerical_features)
+
+    # Combine the encoded and normalized features
+    input_features = np.array([gender_encoded[0], numerical_features[0][0], numerical_features[0][1], numerical_features[0][2], numerical_features[0][3], bmi_encoded[0], numerical_features[0][4], numerical_features[0][5], sleep_disorder_encoded[0], numerical_features[0][6], numerical_features[0][7]]).reshape(1, -1)
+    stress_prediction = mlp.predict(input_features)
+
+    return stress_prediction[0]  # Return the predicted stress level
 
 # Main page
 st.title('Stress Level Prediction')
@@ -98,8 +124,10 @@ st.divider()    # Add a divider
 st.header("Input Data")
 st.write("To predict your stress level, please input the following data:")
 gender_col, age_col, bmi_col = st.columns(3)
-sleep_dur_col, sleep_disorder_col, steps_col = st.columns(3)
+sleep_dur_col, sleep_qual_col, sleep_disorder_col = st.columns(3)
 heart_rate_col, systolic_col, diastolic_col = st.columns(3)
+steps_col, physical_act_col = st.columns(2)
+
 
 ## Gender, Age (years), Body Mass Index (BMI)
 with gender_col:
@@ -114,20 +142,20 @@ with bmi_col:
     st.subheader('Body Mass Index (BMI)')
     bmi = st.radio("Please select your BMI category.", ["Normal", "Overweight", "Obese"], index=None)
 
-## Sleep duration (hours), Sleep disorder, Steps (per day)
+## Sleep duration (hours), Sleep quality, Sleep disorder
 with sleep_dur_col:
     st.subheader('Sleep Duration')
     sleep_dur = st.slider("Use the slider to input your average sleep duration (in hours).", min_value=5.8, max_value=8.5, step=0.1)
+
+with sleep_qual_col:
+    st.subheader('Sleep Quality')
+    sleep_qual = st.number_input("Please type your subjective rating of sleep quality.", min_value=1, max_value=10, step=1)
 
 with sleep_disorder_col:
     st.subheader('Sleep Disorder')
     sleep_disorder = st.radio("What sleep disorder are you currently diagnosed with?", ["None", "Sleep Apnea", "Insomnia"], index=None)
 
-with steps_col:
-    st.subheader('Daily Steps')
-    daily_steps = st.number_input("Please enter the number of steps you take daily.", min_value=1000, max_value=10000)
-
-## Heart rate (bpm), and systolic and diastolic blood pressure
+## Heart rate (bpm), and systolic and diastolic blood pressure 
 with heart_rate_col:
     st.subheader('Heart Rate')
     heart_rate = st.number_input("Please enter your heart rate (in beats per minute).", min_value=65, max_value=86, step=1)
@@ -140,9 +168,18 @@ with diastolic_col:
     st.subheader('Diastolic Blood Pressure')
     diastolic_bp = st.number_input("Please enter your diastolic blood pressure.", min_value=60, max_value=90, step=1)
 
+## Steps (per day), Physical activity level
+with steps_col:
+    st.subheader('Daily Steps')
+    daily_steps = st.number_input("Please enter the number of steps you take daily.", min_value=1000, max_value=10000)
+
+with physical_act_col:
+    st.subheader('Physical Activity Level')
+    phys_act_level = st.number_input("Please enter the amount of your physical activity (in minutes).", min_value=30, max_value=90, step=1)
+
 st.divider()    # Add a divider
 
 ## Predict button
 if st.button('Predict Your Stress Level'):
-    stress_pred = predictStress(gender, age, sleep_dur, bmi, heart_rate, daily_steps, systolic_bp, diastolic_bp)
+    stress_pred = predictStress(gender, age, sleep_dur, sleep_qual, phys_act_level, bmi, heart_rate, daily_steps, sleep_disorder, systolic_bp, diastolic_bp)
     st.success(f"Your predicted stress level is: {stress_pred}")
