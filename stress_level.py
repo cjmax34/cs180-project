@@ -1,4 +1,3 @@
-import streamlit as st
 from helper.func import *   # Import the necessary libraries and functions from helper/func.py
 
 st.set_page_config(
