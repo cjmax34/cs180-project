@@ -3,6 +3,7 @@ import streamlit as st
 # Import necessary libraries for the model here
 import pandas as pd
 import numpy as np
+import sklearn
 
 # For data preprocessing
 from sklearn.preprocessing import LabelEncoder
