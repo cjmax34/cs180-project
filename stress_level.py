@@ -26,7 +26,7 @@ with gender_col:
 
 with age_col:
     st.subheader('Age')
-    age = st.number_input("Please enter your age.", min_value=27, max_value=60, step=1)
+    age = st.number_input("Please enter your age.", min_value=18, max_value=60, step=1)
 
 with bmi_col:
     st.subheader('Body Mass Index (BMI)')
