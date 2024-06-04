@@ -6,6 +6,8 @@ This is a course requirement for CS 180 (Artificial Intelligence) Course of the 
 * MENDOZA, Janelle M.
 * MURILLO, Joana Marie V.
 
+The Jupyter Notebook used for the project is also uploaded to Google Colab. It can be accessed [here](https://colab.research.google.com/drive/1boaPfTTVZl6T0i7grbWomCk70fBylFAQ).
+
 ## How to run the web app
 1. Clone the repository.
 ```
